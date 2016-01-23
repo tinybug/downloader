@@ -33,12 +33,24 @@ Downloader.prototype._download = function() {
         this.emit('hungry');
         const item = this._items.shift();
         if(! item) return;
+        if(fs.existsSync(item.filepath)) {
+            -- this._downloadingCount;
+            ++ this._downloaded;
+            console.log('download count: ' + this._downloaded + '/' + this._total);
+            this.emit('finish-item');
+            if(this._downloaded == this._total) {
+                this.emit('finish');
+            }
+
+            return;
+        }
         const self = this;
         request({url: item.url, followAllRedirects: true })
             .on('response', function(response) {
                 console.log('new one donwloading...');
             })
             .on('error', function(error) {
+                self._items.push(item);
                 self.emit('error', error);
             })
             .pipe(fs.createWriteStream(item.filepath))
@@ -48,7 +60,7 @@ Downloader.prototype._download = function() {
             .on('close', function() {
                 -- self._downloadingCount;
                 ++ self._downloaded;
-                console.log('downloading count: ' + self._downloadingCount);
+                console.log('download count: ' + self._downloaded + '/' + self._total);
                 self.emit('finish-item');
                 if(self._downloaded == self._total) {
                     self.emit('finish');
