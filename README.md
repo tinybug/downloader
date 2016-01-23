@@ -9,11 +9,17 @@ const items = [
     {url: 'www.test2.com/file2', filepath: 'filepath2'}
 ];
 downloader.init(items, 1);
-downloader.start();
+downloader.on('new-item', function(filepath) {
+    console.log('start download: ' + filepath);
+});
+downloader.on('progress', function(downloaded, total) {
+    console.log('download count: ' + downloaded + '/' + total);
+});
 downloader.on('error', function(error) {
     console.log(error);
 });
 downloader.on('finish', function() {
     console.log('finish');
 });
+downloader.start();
 ```
