@@ -23,3 +23,6 @@ downloader.on('finish', function() {
 });
 downloader.start();
 ```
+# TODO
+## push item dynamic
+## file download in chunk
