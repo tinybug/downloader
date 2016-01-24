@@ -40,11 +40,11 @@ Downloader.prototype._handleDownloaded = function(error) {
 Downloader.prototype._download = function() {
     if(this._downloadingCount < this._downloadingLimit) {
         ++ this._downloadingCount;
-        this.emit('hungry');
         const item = this._items.shift();
         if(! item) {
-            return;
+            return this.emit('finish');
         }
+        this.emit('hungry');
         const self = this;
         const req = request({url: item.url, followAllRedirects: true })
             .on('response', function(response) {
