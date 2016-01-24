@@ -31,10 +31,7 @@ Downloader.prototype._handleDownloaded = function(error) {
     	++ this._downloaded;
     }
     this.emit('progress', this._downloaded, this._total);
-    if(this._downloaded == this._total) {
-        return this.emit('finish');
-    }
-    this.emit('hungry');
+    this._downloaded == this._total ? this.emit('finish') : this.emit('hungry');
 };
 
 Downloader.prototype._download = function() {
@@ -42,7 +39,10 @@ Downloader.prototype._download = function() {
         ++ this._downloadingCount;
         const item = this._items.shift();
         if(! item) {
-            return this.emit('finish');
+            if(this._downloaded == this._total) {
+                return this.emit('finish');
+            }
+            return;
         }
         this.emit('hungry');
         const self = this;
