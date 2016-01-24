@@ -67,6 +67,7 @@ Downloader.prototype._download = function() {
             .on('error', function(error) {
                 console.log(item);
                 self._items.push(item);
+		self._handleDownloaded();
                 self.emit('error', error);
             });
     }
