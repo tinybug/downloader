@@ -44,7 +44,6 @@ Downloader.prototype._download = function() {
             }
             return;
         }
-        this.emit('hungry');
         const self = this;
         const req = request({url: item.url, followAllRedirects: true })
             .on('response', function(response) {
@@ -68,9 +67,11 @@ Downloader.prototype._download = function() {
             .on('error', function(error) {
                 console.log(item);
                 self._items.push(item);
-		self._handleDownloaded(error);
+                self._handleDownloaded(error);
                 self.emit('error', error);
             });
+
+        this.emit('hungry');
     }
 };
 
