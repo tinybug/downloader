@@ -9,7 +9,6 @@ function Downloader() {
     EventEmitter.call(this);
 
     this.on('hungry', this._download);
-    this.on('finish-item', this._download);
 }
 
 util.inherits(Downloader, EventEmitter);
@@ -26,14 +25,16 @@ Downloader.prototype.start = function() {
     this._download();
 };
 
-Downloader.prototype._handleDownloaded = function() {
+Downloader.prototype._handleDownloaded = function(error) {
     -- this._downloadingCount;
-    ++ this._downloaded;
+    if(! error) {
+    	++ this._downloaded;
+    }
     this.emit('progress', this._downloaded, this._total);
     if(this._downloaded == this._total) {
         return this.emit('finish');
     }
-    this.emit('finish-item');
+    this.emit('hungry');
 };
 
 Downloader.prototype._download = function() {
@@ -47,7 +48,7 @@ Downloader.prototype._download = function() {
         const self = this;
         const req = request({url: item.url, followAllRedirects: true })
             .on('response', function(response) {
-                self.emit('new-item', item.filepath);
+                self.emit('file', item.filepath);
                 if(fs.existsSync(item.filepath)) {
                     const stat = fs.statSync(item.filepath);
                     if (stat['size'] == response.headers['content-length']) {
@@ -67,7 +68,7 @@ Downloader.prototype._download = function() {
             .on('error', function(error) {
                 console.log(item);
                 self._items.push(item);
-		self._handleDownloaded();
+		self._handleDownloaded(error);
                 self.emit('error', error);
             });
     }
